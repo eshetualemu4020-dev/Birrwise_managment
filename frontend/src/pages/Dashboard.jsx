@@ -17,14 +17,8 @@ export default function DashboardDispatcher() {
         const res = await axios.get('/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const user = res.data.user;
-        if (user.role === 'admin') {
-          navigate('/admin/dashboard', { replace: true });
-        } else if (user.role === 'advisor') {
-          navigate('/advisor/dashboard', { replace: true });
-        } else {
-          navigate('/student/dashboard', { replace: true });
-        }
+        // Student-only: always route to student dashboard
+        navigate('/student/dashboard', { replace: true });
       } catch (err) {
         localStorage.removeItem('token');
         navigate('/login', { replace: true });

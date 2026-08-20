@@ -3,3 +3,11 @@ node_modules/
 dist/
 build/
 .DS_Store
+backend/database.sqlite
+backend/uploads/
+*.lnk
+*.cjs
+*.diff
+*.rej
+frontend/temp_head.jsx
+view-sidebar.js

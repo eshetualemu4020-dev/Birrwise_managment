@@ -26,15 +26,12 @@ export default function Login() {
     }
   };
 
-  const handleAdminQuickFill = () => {
-    setEmail('admin@example.com');
-    setPassword('admin123');
-  };
+
 
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
-        <h2>Welcome Back</h2>
+        <h2>Welcome Back birrwise</h2>
         <p className="subtitle">Sign in to your account</p>
         {error && <p className="error">{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -61,38 +58,11 @@ export default function Login() {
             />
           </div>
           <button type="submit" className="btn-primary" id="btn-login-submit">Sign In</button>
-        </form>
-        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', width: '100%' }}>
-            <button
-              type="button"
-              className="btn-secondary"
-              id="btn-admin-fill"
-              onClick={handleAdminQuickFill}
-              style={{ fontSize: '0.85rem', padding: '6px 12px', flex: 1 }}
-            >
-              🔑 Fill Admin
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              id="btn-advisor-fill"
-              onClick={() => { setEmail('advisor@example.com'); setPassword('advisor123'); }}
-              style={{ fontSize: '0.85rem', padding: '6px 12px', flex: 1 }}
-            >
-              💼 Fill Advisor
-            </button>
+          </form>
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#a855f7', textDecoration: 'none' }}>Forgot Password?</Link>
           </div>
-          <button
-            type="button"
-            className="btn-secondary"
-            id="btn-student-fill"
-            onClick={() => { setEmail('student@example.com'); setPassword('student123'); }}
-            style={{ fontSize: '0.85rem', padding: '6px 12px', width: '100%' }}
-          >
-            🎓 Fill Student
-          </button>
-        </div>
+
         <p className="switch-link">
           Don&apos;t have an account? <Link to="/register" id="link-create-account">Create one</Link>
         </p>
