@@ -1980,20 +1980,20 @@ export default function StudentDashboard() {
             {[...NAV_ITEMS, { id: 'settings', label: 'Settings' }].find(n => n.id === activeSection)?.icon}{' '}
             {[...NAV_ITEMS, { id: 'settings', label: 'Settings' }].find(n => n.id === activeSection)?.label}
           </div>
-          <div className="bw-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="bw-topbar-right">
+            <button 
+              onClick={toggleTheme}
+              style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', marginRight: '16px' }}
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
             
             {/* Notifications */}
             <div style={{ position: 'relative' }}>
               <button 
-                onClick={toggleTheme}
-                style={{ background: 'transparent', border: 'none', fontSize: '1.1rem', cursor: 'pointer', marginRight: '16px' }}
-                title="Toggle Theme"
-              >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-              <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                style={{ background: 'transparent', border: 'none', fontSize: '1.1rem', cursor: 'pointer', position: 'relative' }}
+                style={{ background: 'transparent', border: 'none', fontSize: '1.1rem', cursor: 'pointer', position: 'relative', marginRight: '16px' }}
               >
                 🔔
                 {notifications.filter(n => !n.isRead).length > 0 && (

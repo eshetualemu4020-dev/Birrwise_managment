@@ -197,6 +197,7 @@ export default function StudentSavingsGoals() {
     if (id === 'dashboard') navigate('/student/dashboard');
     else if (id === 'budgets') navigate('/student/budgets');
     else if (id === 'transactions') navigate('/student/transactions');
+    else if (id === 'reports') navigate('/student/reports');
     else if (id === 'savings') return; // already here
     else navigate('/student/dashboard', { state: { activeSection: id } });
   };
@@ -496,7 +497,13 @@ export default function StudentSavingsGoals() {
               )}
               <span className="bw-admin-badge" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>Student Profile</span>
             </span>
-            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout}>Logout</button>
+            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout} title="Logout" style={{ padding: '0.45rem 0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
           </div>
         </header>
 
@@ -896,7 +903,7 @@ export default function StudentSavingsGoals() {
                 </div>
                 <div className="sg-form-group">
                   <label>Target Date <span style={{ color:'#ef4444' }}>*</span></label>
-                  <input className="sg-input" type="date" value={eDate} onChange={e=>setEDate(e.target.value)} />
+                  <input className="sg-input" type="date" value={eDate} min={new Date().toISOString().slice(0,10)} onChange={e=>setEDate(e.target.value)} />
                 </div>
                 <div className="sg-form-group" style={{ gridColumn:'1/-1' }}>
                   <label>Description</label>

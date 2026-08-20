@@ -18,6 +18,7 @@ const NAV_ITEMS = [
 export default function StudentReports() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -123,19 +124,30 @@ export default function StudentReports() {
       {/* ── MAIN CONTENT ──────────────────────────────────────── */}
       <main className="bw-main">
         {/* Header */}
-        <header className="bw-header">
-          <div className="bw-header-left">
+        <header className="bw-topbar">
+          <div className="bw-topbar-left">
             <h1 className="bw-page-title">📑 Reports & Exports</h1>
-            <p className="bw-page-subtitle">Download your financial data for offline use and analysis.</p>
+            <p className="bw-page-subtitle" style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)' }}>Download your financial data for offline use and analysis.</p>
           </div>
-          <div className="bw-header-right">
+          <div className="bw-topbar-right">
             <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', marginRight: '16px' }} title="Toggle Theme">
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
-            <div className="bw-user-profile">
-              <span className="bw-avatar">R</span>
-              <button className="bw-logout-btn" onClick={handleLogout}>Log Out</button>
-            </div>
+            <span className="bw-user-chip" id="user-badge-display">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt="User" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }} />
+              ) : (
+                <span style={{ marginRight: 6 }}>👤</span>
+              )}
+              <span className="bw-admin-badge" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>Student Profile</span>
+            </span>
+            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout} title="Logout" style={{ padding: '0.45rem 0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
           </div>
         </header>
 

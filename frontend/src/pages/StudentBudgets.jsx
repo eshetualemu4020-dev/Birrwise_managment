@@ -18,6 +18,10 @@ const NAV_ITEMS = [
 const PERIODS = ['weekly', 'monthly', 'semester', 'custom'];
 const CATEGORIES = ['Food', 'Transport', 'Housing', 'Entertainment', 'Utilities', 'Healthcare', 'Education', 'Other'];
 
+const getLocalYMD = (date = new Date()) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
 export default function StudentBudgets() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -38,8 +42,12 @@ export default function StudentBudgets() {
   const [budgetType, setBudgetType] = useState('category');
   const [category, setCategory] = useState('Food');
   const [periodType, setPeriodType] = useState('monthly');
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
-  const [endDate, setEndDate] = useState(new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(getLocalYMD());
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return getLocalYMD(d);
+  });
   const [alertThreshold, setAlertThreshold] = useState(80);
   const [isRecurring, setIsRecurring] = useState(false);
 
@@ -81,8 +89,10 @@ export default function StudentBudgets() {
     setBudgetType('category');
     setCategory('Food');
     setPeriodType('monthly');
-    setStartDate(new Date().toISOString().slice(0, 10));
-    setEndDate(new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 10));
+    setStartDate(getLocalYMD());
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    setEndDate(getLocalYMD(nextMonth));
     setAlertThreshold(80);
     setIsRecurring(false);
     setEditingId(null);
@@ -118,14 +128,21 @@ export default function StudentBudgets() {
       return;
     }
     
-    // Prevent creating new budgets in the past
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
+    // Strict local YYYY-MM-DD comparison to avoid timezone shift issues
+    const todayYMD = getLocalYMD();
     
-    if (!editingId && start < today) {
+    if (!editingId && startDate < todayYMD) {
       setError('Start date cannot be in the past.');
+      return;
+    }
+
+    if (!editingId && endDate < todayYMD) {
+      setError('End date cannot be in the past.');
+      return;
+    }
+
+    if (endDate < startDate) {
+      setError('End date cannot be before start date.');
       return;
     }
 
@@ -426,11 +443,11 @@ export default function StudentBudgets() {
               <div style={{ display: 'flex', gap: '15px' }}>
                 <div className="bw-form-group" style={{ flex: 1 }}>
                   <label>Start Date *</label>
-                  <input type="date" className="bw-input" value={startDate} min={new Date().toISOString().split("T")[0]} onChange={e => setStartDate(e.target.value)} required />
+                  <input type="date" className="bw-input" value={startDate} min={getLocalYMD()} onChange={e => setStartDate(e.target.value)} required />
                 </div>
                 <div className="bw-form-group" style={{ flex: 1 }}>
                   <label>End Date *</label>
-                  <input type="date" className="bw-input" value={endDate} min={startDate || new Date().toISOString().split("T")[0]} onChange={e => setEndDate(e.target.value)} required />
+                  <input type="date" className="bw-input" value={endDate} min={startDate || getLocalYMD()} onChange={e => setEndDate(e.target.value)} required />
                 </div>
               </div>
               

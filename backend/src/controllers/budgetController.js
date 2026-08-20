@@ -66,6 +66,17 @@ exports.createBudget = async (req, res) => {
     return res.status(400).json({ message: 'Required fields missing' });
   }
 
+  const d = new Date();
+  const todayYMD = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+  if (endDate < todayYMD) {
+    return res.status(400).json({ message: 'End date cannot be in the past' });
+  }
+
+  if (endDate < startDate) {
+    return res.status(400).json({ message: 'End date cannot be before start date' });
+  }
+
   try {
     try {
       await checkAvailableBalance(req.user.id, amount);
@@ -116,6 +127,20 @@ exports.updateBudget = async (req, res) => {
   try {
     const budget = await Budget.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!budget) return res.status(404).json({ message: 'Budget not found' });
+
+    const newStartDate = startDate !== undefined ? startDate : budget.startDate;
+    const newEndDate = endDate !== undefined ? endDate : budget.endDate;
+
+    const d = new Date();
+    const todayYMD = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+    if (endDate !== undefined && endDate !== budget.endDate && endDate < todayYMD) {
+      return res.status(400).json({ message: 'End date cannot be changed to a past date' });
+    }
+
+    if (endDate !== undefined && newEndDate < newStartDate) {
+      return res.status(400).json({ message: 'End date cannot be before start date' });
+    }
 
     if (amount !== undefined) {
       const diff = parseFloat(amount) - budget.amount;
