@@ -6,34 +6,15 @@ import Chart from 'chart.js/auto';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../context/ThemeContext';
 
-const NAV_ITEMS = [
-  { id: 'dashboard',    icon: '🏠', label: 'Dashboard' },
-  { id: 'income',       icon: '💰', label: 'Income' },
-  { id: 'expenses',     icon: '💸', label: 'Expenses' },
-  { id: 'budgets',      icon: '📊', label: 'Budgets' },
-  { id: 'savings',      icon: '🎯', label: 'Savings Goals' },
-  { id: 'analytics',   icon: '📈', label: 'Analytics' },
-  { id: 'transactions',icon: '🧾', label: 'Transactions' },
-  { id: 'reports',      icon: '📑', label: 'Reports' },
-  { id: 'ai-chat',     icon: '🤖', label: 'AI Assistant' },
-];
-
-
+import StudentLayout from '../components/StudentLayout';
 
 export default function StudentDashboard() {
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
   const [activeSection, setActiveSection] = useState(location.state?.activeSection || 'dashboard');
   const [user, setUser]       = useState(null);
   const [isFrozen, setIsFrozen] = useState(false);
   const [systemCategories, setSystemCategories] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
 
-  // AI Chat State
-  const [chatHistory, setChatHistory] = useState([]);
-  const [chatInput, setChatInput] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
 
   // KYC (student)
   const [studentId,    setStudentId]    = useState('');
@@ -151,18 +132,7 @@ export default function StudentDashboard() {
     }
   }, []);
 
-  const fetchNotifications = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const res = await axios.get('/api/notifications', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setNotifications(res.data.notifications || []);
-    } catch (err) {
-      console.error('Failed to load notifications', err);
-    }
-  }, []);
+
 
   // ── Income API ────────────────────────────────────────────────
   const fetchIncomes = useCallback(async () => {
@@ -183,38 +153,16 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     fetchProfile();
-    fetchNotifications();
     const t = setInterval(() => {
       fetchProfile();
-      fetchNotifications();
     }, 4000);
     return () => clearInterval(t);
-  }, [fetchProfile, fetchNotifications]);
+  }, [fetchProfile]);
 
   // ── Budget API (Dashboard Preview) ──────────────────────────────
   const [budgetsDashboard, setBudgetsDashboard] = useState([]);
   
-  const handleMarkAsRead = async (id) => {
-    try {
-      await axios.put(`/api/notifications/${id}/read`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      fetchNotifications();
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      await axios.put('/api/notifications/read-all', {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      fetchNotifications();
-    } catch (err) {
-      console.error(err);
-    }
-  };
   
   const fetchBudgetsDashboard = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -1830,84 +1778,6 @@ export default function StudentDashboard() {
     );
   };
 
-  // ── AI Chat Section ──────────────────────────────────────────
-  const renderChatSection = () => {
-    const handleSendChat = async (e) => {
-      e.preventDefault();
-      if (!chatInput.trim()) return;
-
-      const userMessage = chatInput.trim();
-      setChatHistory(prev => [...prev, { sender: 'user', text: userMessage }]);
-      setChatInput('');
-      setChatLoading(true);
-
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.post('/api/chat', 
-          { message: userMessage, history: chatHistory },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setChatHistory(prev => [...prev, { sender: 'ai', text: res.data.reply }]);
-      } catch (error) {
-        console.error('Chat error:', error);
-        setChatHistory(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error. Please try again.' }]);
-      } finally {
-        setChatLoading(false);
-      }
-    };
-
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', maxWidth: '800px', margin: '0 auto', gap: 20 }}>
-        <div className="bw-welcome" style={{ marginBottom: 0 }}>
-          <h1>🤖 AI Assistant</h1>
-          <p>Ask questions about your finances, budgets, and spending habits.</p>
-        </div>
-        
-        <div className="bw-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-          <div style={{ flex: 1, overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {chatHistory.length === 0 ? (
-              <div style={{ textAlign: 'center', color: 'rgba(var(--overlay-rgb),0.4)', marginTop: 40 }}>
-                <p style={{ fontSize: '3rem', marginBottom: 10 }}>🤖</p>
-                <p>Hi! I'm your BirrWise AI Assistant.</p>
-                <p>Try asking: "What are my highest expenses?" or "Am I within my budget this month?"</p>
-              </div>
-            ) : (
-              chatHistory.map((msg, idx) => (
-                <div key={idx} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%', background: msg.sender === 'user' ? 'linear-gradient(135deg, #7c5cfc, #a855f7)' : 'rgba(var(--overlay-rgb),0.1)', padding: '12px 16px', borderRadius: 16, borderBottomRightRadius: msg.sender === 'user' ? 4 : 16, borderBottomLeftRadius: msg.sender === 'ai' ? 4 : 16, color: "var(--text-primary)", fontSize: '0.95rem', lineHeight: 1.5 }}>
-                  {msg.text}
-                </div>
-              ))
-            )}
-            {chatLoading && (
-              <div style={{ alignSelf: 'flex-start', background: 'rgba(var(--overlay-rgb),0.1)', padding: '12px 16px', borderRadius: 16, borderBottomLeftRadius: 4, color: 'rgba(var(--overlay-rgb),0.6)', fontSize: '0.95rem' }}>
-                Typing...
-              </div>
-            )}
-          </div>
-          
-          <div style={{ padding: 16, borderTop: '1px solid rgba(var(--overlay-rgb),0.1)', background: 'rgba(0,0,0,0.2)' }}>
-            <form onSubmit={handleSendChat} style={{ display: 'flex', gap: 12 }}>
-              <input 
-                type="text" 
-                placeholder="Ask me anything..." 
-                value={chatInput} 
-                onChange={e => setChatInput(e.target.value)}
-                style={{ flex: 1, padding: '12px 16px', borderRadius: 24, border: '1px solid rgba(var(--overlay-rgb),0.15)', background: 'rgba(var(--overlay-rgb),0.05)', color: "var(--text-primary)", fontSize: '0.95rem', outline: 'none' }}
-                disabled={chatLoading}
-              />
-              <button 
-                type="submit" 
-                style={{ background: '#10b981', color: "var(--text-primary)", border: 'none', borderRadius: 24, padding: '0 24px', fontWeight: 600, cursor: chatLoading ? 'not-allowed' : 'pointer', opacity: chatLoading ? 0.7 : 1 }}
-                disabled={chatLoading}
-              >
-                Send
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const sectionContent = () => {
     switch (activeSection) {
@@ -1917,7 +1787,6 @@ export default function StudentDashboard() {
       case 'budgets':      return renderPlaceholder('Budgets', '📊', 'Set monthly budget limits and track progress.');
       case 'savings':      return renderPlaceholder('Savings Goals', '🎯', 'Create savings goals and monitor your progress.');
       case 'analytics':    return renderAnalytics();
-      case 'ai-chat':      return renderChatSection();
       case 'ai':           return renderAiInsights();
       case 'transactions': return renderTransactions();
       case 'settings':     return renderSettings();
@@ -1927,122 +1796,13 @@ export default function StudentDashboard() {
 
 
   return (
-    <div className="bw-layout">
-      {/* 🔴 FROZEN BLOCK NOTICE */}
-      {isFrozen && (
-        <div id="block-notice-overlay" className="bw-frozen-overlay">
-          <div className="bw-frozen-card">
-            <div style={{ fontSize: '4rem' }}>🚫</div>
-            <h1 id="block-notice-title">ACCOUNT FROZEN</h1>
-            <p id="block-notice-message">Your account has been suspended by an administrator.<br />All actions are blocked immediately.</p>
-            <div className="bw-frozen-code">Status: <strong>ACCOUNT_SUSPENDED</strong></div>
-            <button onClick={handleLogout} className="bw-frozen-btn">Sign Out</button>
-          </div>
-        </div>
-      )}
-
-      {/* ── SIDEBAR ─────────────────────────────────────── */}
-      <aside className="bw-sidebar">
-        <div className="bw-sidebar-brand">
-          <span className="bw-brand-icon">💰</span>
-          <span className="bw-brand-text">BirrWise</span>
-        </div>
-        <nav className="bw-nav">
-          {NAV_ITEMS.map(item => (
-            <button key={item.id} className={`bw-nav-item${activeSection === item.id ? ' active' : ''}`} onClick={() => {
-              if (['dashboard', 'income', 'expenses', 'analytics', 'ai-chat'].includes(item.id)) {
-                setActiveSection(item.id);
-              } else if (item.id === 'budgets') {
-                navigate('/student/budgets');
-              } else if (item.id === 'savings') {
-                navigate('/student/savings-goals');
-              } else if (item.id === 'transactions') {
-                navigate('/student/transactions');
-              } else if (item.id === 'reports') {
-                navigate('/student/reports');
-              }
-            }} id={`nav-${item.id}`}>
-              <span className="bw-nav-icon">{item.icon}</span>
-              <span className="bw-nav-label">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-        <button className="bw-nav-item bw-settings-item" onClick={() => setActiveSection('settings')} style={{ marginTop: 'auto' }} id="nav-settings">
-          <span className="bw-nav-icon">⚙️</span>
-          <span className="bw-nav-label">Settings</span>
-        </button>
-      </aside>
-
-      {/* ── MAIN AREA ─────────────────────────────────────── */}
-      <div className="bw-main">
-        <header className="bw-topbar">
-          <div className="bw-topbar-title">
-            {[...NAV_ITEMS, { id: 'settings', label: 'Settings' }].find(n => n.id === activeSection)?.icon}{' '}
-            {[...NAV_ITEMS, { id: 'settings', label: 'Settings' }].find(n => n.id === activeSection)?.label}
-          </div>
-          <div className="bw-topbar-right">
-            <button 
-              onClick={toggleTheme}
-              style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', marginRight: '16px' }}
-              title="Toggle Theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            
-            {/* Notifications */}
-            <div style={{ position: 'relative' }}>
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                style={{ background: 'transparent', border: 'none', fontSize: '1.1rem', cursor: 'pointer', position: 'relative', marginRight: '16px' }}
-              >
-                🔔
-                {notifications.filter(n => !n.isRead).length > 0 && (
-                  <span style={{ position: 'absolute', top: -4, right: -4, background: '#ef4444', color: "var(--text-primary)", fontSize: '0.65rem', padding: '2px 5px', borderRadius: 10, fontWeight: 'bold' }}>
-                    {notifications.filter(n => !n.isRead).length}
-                  </span>
-                )}
-              </button>
-              {showNotifications && (
-                <div style={{ position: 'absolute', top: '100%', right: 0, width: 320, background: "var(--bg-solid)", border: '1px solid rgba(var(--overlay-rgb),0.1)', borderRadius: 12, marginTop: 12, zIndex: 50, boxShadow: '0 10px 25px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(var(--overlay-rgb),0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <strong style={{ fontSize: '0.9rem', color: "var(--text-primary)" }}>Notifications</strong>
-                    <button onClick={handleMarkAllAsRead} style={{ background: 'none', border: 'none', color: '#a78bfa', fontSize: '0.75rem', cursor: 'pointer' }}>Mark all read</button>
-                  </div>
-                  <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-                    {notifications.length === 0 ? (
-                      <div style={{ padding: 20, textAlign: 'center', color: 'rgba(var(--overlay-rgb),0.5)', fontSize: '0.85rem' }}>No notifications</div>
-                    ) : (
-                      notifications.map(n => (
-                        <div key={n.id} onClick={() => !n.isRead && handleMarkAsRead(n.id)} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(var(--overlay-rgb),0.05)', cursor: n.isRead ? 'default' : 'pointer', background: n.isRead ? 'transparent' : 'rgba(99,102,241,0.1)' }}>
-                          <div style={{ fontSize: '0.85rem', color: n.isRead ? 'rgba(var(--overlay-rgb),0.7)' : '#fff' }}>{n.message}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'rgba(var(--overlay-rgb),0.4)', marginTop: 4 }}>{new Date(n.createdAt).toLocaleString()}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <span className="bw-user-chip" id="user-badge-display">
-              {user?.profilePhoto ? (
-                <img src={user.profilePhoto} alt="User" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }} />
-              ) : (
-                <span style={{ marginRight: 6 }}>👤</span>
-              )}
-              <span className="bw-admin-badge" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>Student Profile</span>
-            </span>
-            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout} title="Logout" style={{ padding: '0.45rem 0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-            </button>
-          </div>
-        </header>
-        <main className="bw-content">{sectionContent()}</main>
-      </div>
-    </div>
+    <StudentLayout 
+      activeSection={activeSection} 
+      onNavClick={setActiveSection} 
+      user={user} 
+      isFrozen={isFrozen}
+    >
+      <main className="bw-content">{sectionContent()}</main>
+    </StudentLayout>
   );
 }

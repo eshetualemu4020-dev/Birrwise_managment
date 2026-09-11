@@ -1,19 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useTheme } from '../context/ThemeContext';
-
-const NAV_ITEMS = [
-  { id: 'dashboard',    icon: '🏠', label: 'Dashboard' },
-  { id: 'income',       icon: '💰', label: 'Income' },
-  { id: 'expenses',     icon: '💸', label: 'Expenses' },
-  { id: 'budgets',      icon: '📊', label: 'Budgets' },
-  { id: 'savings',      icon: '🎯', label: 'Savings Goals' },
-  { id: 'analytics',   icon: '📈', label: 'Analytics' },
-  { id: 'transactions',icon: '🧾', label: 'Transactions' },
-  { id: 'reports',      icon: '📑', label: 'Reports' },
-  { id: 'ai-chat',     icon: '🤖', label: 'AI Assistant' },
-];
+import StudentLayout from '../components/StudentLayout';
 
 const PERIODS = ['weekly', 'monthly', 'semester', 'custom'];
 const CATEGORIES = ['Food', 'Transport', 'Housing', 'Entertainment', 'Utilities', 'Healthcare', 'Education', 'Other'];
@@ -23,7 +11,6 @@ const getLocalYMD = (date = new Date()) => {
 };
 
 export default function StudentBudgets() {
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   
@@ -210,10 +197,7 @@ export default function StudentBudgets() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   const getProgressColor = (percent) => {
     if (percent < 75) return '#10b981'; // green
@@ -230,63 +214,8 @@ export default function StudentBudgets() {
   };
 
   return (
-    <div className="bw-layout">
-      {/* SIDEBAR */}
-      <aside className="bw-sidebar">
-        <div className="bw-brand">
-          <span className="bw-brand-icon">🎓</span>
-          <h2>BirrWise Student</h2>
-        </div>
-        <nav className="bw-nav">
-          {NAV_ITEMS.map(item => (
-            <button 
-              key={item.id} 
-              className={`bw-nav-item${item.id === 'budgets' ? ' active' : ''}`} 
-              onClick={() => {
-                if (item.id === 'budgets') return;
-                if (item.id === 'dashboard') { navigate('/student/dashboard', { state: { activeSection: 'dashboard' } }); return; }
-                if (item.id === 'income') { navigate('/student/dashboard', { state: { activeSection: 'income' } }); return; }
-                if (item.id === 'expenses') { navigate('/student/dashboard', { state: { activeSection: 'expenses' } }); return; }
-                if (item.id === 'analytics') { navigate('/student/dashboard', { state: { activeSection: 'analytics' } }); return; }
-                if (item.id === 'ai-chat') { navigate('/student/dashboard', { state: { activeSection: 'ai-chat' } }); return; }
-                if (item.id === 'savings') { navigate('/student/savings-goals'); return; }
-                if (item.id === 'transactions') { navigate('/student/transactions'); return; }
-              }}
-            >
-              <span className="bw-nav-icon">{item.icon}</span>
-              <span className="bw-nav-label">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="bw-main">
-        <header className="bw-topbar">
-          <div className="bw-topbar-title">
-            📊 Budgets
-          </div>
-          <div className="bw-topbar-right">
-            <button 
-              onClick={toggleTheme}
-              style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', marginRight: '16px' }}
-              title="Toggle Theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <span className="bw-user-chip" id="user-badge-display">
-              {user?.profilePhoto ? (
-                <img src={user.profilePhoto} alt="User" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }} />
-              ) : (
-                <span style={{ marginRight: 6 }}>👤</span>
-              )}
-              <span className="bw-admin-badge" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>Student Profile</span>
-            </span>
-            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <div className="bw-content" style={{ padding: '20px' }}>
+    <StudentLayout activeSection="budgets" user={user}>
+        <div className="bw-content" style={{ padding: '20px', flex: 1 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <h3>Overview</h3>
@@ -396,7 +325,6 @@ export default function StudentBudgets() {
             </div>
           )}
         </div>
-      </main>
 
       {/* CREATE / EDIT MODAL */}
       {showModal && (
@@ -469,6 +397,6 @@ export default function StudentBudgets() {
           </div>
         </div>
       )}
-    </div>
+    </StudentLayout>
   );
 }

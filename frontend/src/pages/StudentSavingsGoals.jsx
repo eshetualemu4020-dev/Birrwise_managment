@@ -5,19 +5,7 @@ import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const NAV_ITEMS = [
-  { id: 'dashboard',    icon: '🏠', label: 'Dashboard' },
-  { id: 'income',       icon: '💰', label: 'Income' },
-  { id: 'expenses',     icon: '💸', label: 'Expenses' },
-  { id: 'budgets',      icon: '📊', label: 'Budgets' },
-  { id: 'savings',      icon: '🎯', label: 'Savings Goals' },
-  { id: 'analytics',   icon: '📈', label: 'Analytics' },
-  { id: 'transactions',icon: '🧾', label: 'Transactions' },
-  { id: 'reports',      icon: '📑', label: 'Reports' },
-  { id: 'ai-chat',     icon: '🤖', label: 'AI Assistant' },
-];
-
-
+import StudentLayout from '../components/StudentLayout';
 const PRIORITIES = ['high','medium','low'];
 
 const STATUS_META = {
@@ -54,7 +42,6 @@ function Skeleton({ w = '100%', h = 18, r = 8, mb = 0 }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function StudentSavingsGoals() {
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [user, setUser]         = useState(null);
 
@@ -187,10 +174,7 @@ export default function StudentSavingsGoals() {
   useEffect(() => { if (user) fetchGoals(); }, [user, fetchGoals]);
   useEffect(() => { if (showDetail) fetchDetail(showDetail.id); }, [showDetail?.id]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+
 
   // ── Nav ─────────────────────────────────────────────────────────────────────
   const handleNav = (id) => {
@@ -450,64 +434,8 @@ export default function StudentSavingsGoals() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="bw-layout">
-      {/* SIDEBAR */}
-      <aside className="bw-sidebar">
-        <div className="bw-sidebar-brand">
-          <span className="bw-brand-icon">💰</span>
-          <span className="bw-brand-text">BirrWise</span>
-        </div>
-        <nav className="bw-nav">
-          {NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              className={`bw-nav-item${item.id === 'savings' ? ' active' : ''}`}
-              onClick={() => handleNav(item.id)}
-              id={`nav-${item.id}`}
-            >
-              <span className="bw-nav-icon">{item.icon}</span>
-              <span className="bw-nav-label">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-        <button className="bw-nav-item bw-settings-item" onClick={() => navigate('/student/dashboard', { state: { activeSection: 'settings' } })} style={{ marginTop: 'auto' }}>
-          <span className="bw-nav-icon">⚙️</span>
-          <span className="bw-nav-label">Settings</span>
-        </button>
-      </aside>
-
-      {/* MAIN */}
-      <div className="bw-main">
-        {/* Topbar */}
-        <header className="bw-topbar">
-          <div className="bw-topbar-title">🎯 Savings Goals</div>
-          <div className="bw-topbar-right">
-            <button 
-              onClick={toggleTheme}
-              style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', marginRight: '16px' }}
-              title="Toggle Theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <span className="bw-user-chip" id="user-badge-display">
-              {user?.profilePhoto ? (
-                <img src={user.profilePhoto} alt="User" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }} />
-              ) : (
-                <span style={{ marginRight: 6 }}>👤</span>
-              )}
-              <span className="bw-admin-badge" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>Student Profile</span>
-            </span>
-            <button className="bw-logout-btn" id="btn-logout" onClick={handleLogout} title="Logout" style={{ padding: '0.45rem 0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-            </button>
-          </div>
-        </header>
-
-        <main className="bw-content">
+    <StudentLayout activeSection="savings" user={user}>
+        <main className="bw-content" style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
           {/* PAGE HEADER */}
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexWrap:'wrap', gap:12, marginBottom:28 }}>
             <div>
@@ -804,8 +732,6 @@ export default function StudentSavingsGoals() {
             </div>
           )}
         </main>
-      </div>
-
       {/* ═══════════════════════════════════════════════════════════════════════
           MODALS
       ═══════════════════════════════════════════════════════════════════════ */}
@@ -1181,6 +1107,6 @@ export default function StudentSavingsGoals() {
           </div>
         </div>
       )}
-    </div>
+    </StudentLayout>
   );
 }

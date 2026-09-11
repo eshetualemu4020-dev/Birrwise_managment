@@ -1143,8 +1143,14 @@ body {
 .bw-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+  transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100vh;
+  overflow: hidden;
   background: var(--bg-gradient);
+}
+
+.bw-layout.sidebar-closed {
+  grid-template-columns: 70px 1fr;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────── */
@@ -1154,10 +1160,35 @@ body {
   background: rgba(var(--overlay-rgb), 0.04);
   border-right: 1px solid rgba(var(--overlay-rgb), 0.07);
   padding: 20px 12px 24px;
-  min-height: 100vh;
-  position: sticky;
-  top: 0;
+  height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 240px;
+  width: 240px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bw-layout.sidebar-closed .bw-sidebar {
+  min-width: 70px;
+  width: 70px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.bw-layout.sidebar-closed .bw-brand-text,
+.bw-layout.sidebar-closed .bw-nav-label {
+  display: none;
+}
+
+.bw-layout.sidebar-closed .bw-sidebar-brand {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.bw-layout.sidebar-closed .bw-nav-item {
+  justify-content: center;
+  padding: 11px 0;
 }
 
 .bw-sidebar-brand {
@@ -1186,6 +1217,7 @@ body {
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .bw-nav-item {
@@ -1204,6 +1236,7 @@ body {
   text-align: left;
   transition: background 0.2s, color 0.2s, transform 0.15s;
   width: 100%;
+  min-width: 0;
 }
 
 .bw-nav-item:hover {
@@ -1227,7 +1260,7 @@ body {
 }
 
 .bw-nav-label {
-  white-space: nowrap;
+  min-width: 0;
 }
 
 .bw-settings-item {
@@ -1240,8 +1273,9 @@ body {
 .bw-main {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  overflow: auto;
+  height: 100vh;
+  overflow-y: auto;
+  min-width: 0;
 }
 
 .bw-topbar {
