@@ -1796,11 +1796,24 @@ export default function StudentDashboard() {
     }
   };
 
+  const handleDashboardNav = (id) => {
+    if (['dashboard', 'income', 'expenses', 'analytics', 'settings'].includes(id)) {
+      setActiveSection(id);
+    } else if (id === 'budgets') {
+      navigate('/student/budgets');
+    } else if (id === 'savings') {
+      navigate('/student/savings-goals');
+    } else if (id === 'transactions') {
+      navigate('/student/transactions');
+    } else if (id === 'reports') {
+      navigate('/student/reports');
+    }
+  };
 
   return (
     <StudentLayout 
       activeSection={activeSection} 
-      onNavClick={setActiveSection} 
+      onNavClick={handleDashboardNav} 
       user={user} 
       isFrozen={isFrozen}
     >
