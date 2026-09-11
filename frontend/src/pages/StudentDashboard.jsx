@@ -8,6 +8,8 @@ import { useTheme } from '../context/ThemeContext';
 
 import StudentLayout from '../components/StudentLayout';
 
+const RECURRENCE_INTERVALS = ['none', 'daily', 'weekly', 'monthly', 'yearly'];
+
 export default function StudentDashboard() {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState(location.state?.activeSection || 'dashboard');
