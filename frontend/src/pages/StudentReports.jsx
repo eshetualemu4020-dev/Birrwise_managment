@@ -44,18 +44,28 @@ export default function StudentReports() {
     ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'income_records.csv'; a.click();
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'income_records.csv'; 
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
   const handleExportExpenses = () => {
     const header = 'Date,Category,Amount (ETB),Recurring,Interval,Paid,Description\n';
     const rows = expenses.map(e =>
-      `${e.date},${e.Category?.name || 'Unknown'},${parseFloat(e.amount).toFixed(2)},${e.isRecurring ? 'Yes' : 'No'},${e.recurrenceInterval || ''},${e.isPaid ? 'Yes' : 'No'},${(e.description || '').replace(/,/g, ' ')}`
+      `${e.date},${e.category || 'Unknown'},${parseFloat(e.amount).toFixed(2)},${e.isRecurring ? 'Yes' : 'No'},${e.recurrenceInterval || ''},${e.isPaid ? 'Yes' : 'No'},${(e.description || '').replace(/,/g, ' ')}`
     ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'expense_records.csv'; a.click();
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'expense_records.csv'; 
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
@@ -65,14 +75,16 @@ export default function StudentReports() {
       csv += `"Income","${inc.date}","${inc.amount}","${inc.source}","${(inc.description || '').replace(/"/g, '""')}","${inc.isRecurring ? inc.recurrenceInterval : 'No'}"\n`;
     });
     expenses.forEach(exp => {
-      csv += `"Expense","${exp.date}","${exp.amount}","${exp.Category?.name || 'Unknown'}","${(exp.description || '').replace(/"/g, '""')}","${exp.isRecurring ? exp.recurrenceInterval : 'No'}"\n`;
+      csv += `"Expense","${exp.date}","${exp.amount}","${exp.category || 'Unknown'}","${(exp.description || '').replace(/"/g, '""')}","${exp.isRecurring ? exp.recurrenceInterval : 'No'}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('href', url);
     a.setAttribute('download', `BirrWise_Complete_Data_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 

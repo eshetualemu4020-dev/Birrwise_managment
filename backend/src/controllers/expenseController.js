@@ -21,7 +21,7 @@ exports.createExpense = async (req, res) => {
   }
   try {
     try {
-      await checkAvailableBalance(req.user.id, amount);
+      await checkAvailableBalance(req.user.id, amount, { isExpense: true });
     } catch (balanceError) {
       return res.status(400).json({ message: balanceError.message });
     }
@@ -55,7 +55,7 @@ exports.updateExpense = async (req, res) => {
       const diff = parseFloat(req.body.amount) - expense.amount;
       if (diff > 0) {
         try {
-          await checkAvailableBalance(req.user.id, diff, expense.id);
+          await checkAvailableBalance(req.user.id, diff, { excludeExpenseId: expense.id, isExpense: true });
         } catch (balanceError) {
           return res.status(400).json({ message: balanceError.message });
         }

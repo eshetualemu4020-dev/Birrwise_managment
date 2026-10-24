@@ -146,7 +146,7 @@ exports.updateBudget = async (req, res) => {
       const diff = parseFloat(amount) - budget.amount;
       if (diff > 0) {
         try {
-          await checkAvailableBalance(req.user.id, diff, null, budget.id);
+          await checkAvailableBalance(req.user.id, diff, { excludeBudgetId: budget.id });
         } catch (balanceError) {
           return res.status(400).json({ message: balanceError.message });
         }

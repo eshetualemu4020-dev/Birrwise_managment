@@ -14,7 +14,6 @@ const savingsGoalRoutes = require('./routes/savingsGoals');
 const transactionRoutes = require('./routes/transactions');
 const publicCategoryRoutes = require('./routes/publicCategoryRoutes');
 const notificationRoutes = require('./routes/notifications');
-const chatRoutes = require('./routes/chat');
 const initCronJobs = require('./jobs/cronJobs');
 const User = require('./models/User');
 const Income = require('./models/Income');
@@ -108,7 +107,6 @@ app.use('/api/savings-goals', savingsGoalRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', publicCategoryRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/chat', chatRoutes);
 
 const PORT = process.env.PORT || 5000;
 
@@ -126,6 +124,9 @@ async function migrateColumns() {
       ['year', "INTEGER"],
       ['semester', "VARCHAR(255)"],
       ['otpCode', "VARCHAR(255)"],
+      ['resetPasswordToken', "VARCHAR(255)"],
+      ['resetPasswordExpires', "DATETIME"],
+      ['tokenVersion', "INTEGER DEFAULT 0"],
       ['isVerified', "BOOLEAN DEFAULT 0"],
       ['kycStatus', "VARCHAR(255) DEFAULT 'pending'"],
       ['pinLockEnabled', "BOOLEAN DEFAULT 0"],

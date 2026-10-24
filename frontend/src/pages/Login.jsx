@@ -7,22 +7,26 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const res = await axios.post('/api/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate('/dashboard');
+      navigate('/student/dashboard');
     } catch (err) {
       if (err.response?.data?.isFrozen) {
         setError('⚠️ YOUR ACCOUNT HAS BEEN FROZEN BY AN ADMINISTRATOR.');
       } else {
         setError(err.response?.data?.message || 'Login failed');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +61,9 @@ export default function Login() {
               required
             />
           </div>
-          <button type="submit" className="btn-primary" id="btn-login-submit">Sign In</button>
+          <button type="submit" className="btn-primary" id="btn-login-submit" disabled={loading}>
+            {loading ? 'Signing In…' : 'Sign In'}
+          </button>
           </form>
           <div style={{ marginTop: '12px', textAlign: 'center' }}>
             <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#a855f7', textDecoration: 'none' }}>Forgot Password?</Link>

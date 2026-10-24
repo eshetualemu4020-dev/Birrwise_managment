@@ -36,8 +36,6 @@ export default function StudentTransactions() {
     try {
       const res = await axios.get('/api/auth/me', { headers: authHeader() });
       const u = res.data.user;
-      if (u.role === 'admin')   { navigate('/admin/dashboard',   { replace: true }); return; }
-      if (u.role === 'advisor') { navigate('/advisor/dashboard', { replace: true }); return; }
       setUser(u);
     } catch { navigate('/login'); }
   }, [navigate]);

@@ -103,8 +103,6 @@ export default function StudentDashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = res.data.user;
-      if (userData.role === 'admin')   { navigate('/admin/dashboard',   { replace: true }); return; }
-      if (userData.role === 'advisor') { navigate('/advisor/dashboard', { replace: true }); return; }
       setUser(userData);
       setIsFrozen(userData.isFrozen);
       if (userData.studentId)   setStudentId(userData.studentId);
@@ -377,10 +375,12 @@ export default function StudentDashboard() {
   
   // ── Dynamic Categories ─────────────────────────────────────────
   const INCOME_SOURCES = Array.from(new Set([
+    'Allowance', 'Part-time Job', 'Scholarship', 'Gift', 'Other',
     ...systemCategories.filter(c => c.type === 'income').map(c => c.name),
     ...incomes.map(i => i.source)
   ]));
   const EXPENSE_CATEGORIES = Array.from(new Set([
+    'Food', 'Transport', 'Housing', 'Entertainment', 'Utilities', 'Healthcare', 'Education', 'Other',
     ...systemCategories.filter(c => c.type === 'expense').map(c => c.name),
     ...expenses.map(e => e.category)
   ]));
@@ -416,9 +416,10 @@ export default function StudentDashboard() {
   // ── Expense Computations ───────────────────────────────────────
   const totalExpense = expenses.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const thisMonthExpenses = expenses.filter(e => {
-    const d = new Date(e.date);
+    if (!e.date) return false;
+    const [year, month] = e.date.split('T')[0].split('-');
     const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return parseInt(month, 10) === now.getMonth() + 1 && parseInt(year, 10) === now.getFullYear();
   });
   const monthlyExpTotal = thisMonthExpenses.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const expRecurringCount = expenses.filter(e => e.isRecurring).length;
@@ -454,9 +455,10 @@ export default function StudentDashboard() {
   // ── Income Computations ───────────────────────────────────────
   const totalIncome = incomes.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
   const thisMonthIncomes = incomes.filter(i => {
-    const d = new Date(i.date);
+    if (!i.date) return false;
+    const [year, month] = i.date.split('T')[0].split('-');
     const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return parseInt(month, 10) === now.getMonth() + 1 && parseInt(year, 10) === now.getFullYear();
   });
   const monthlyTotal = thisMonthIncomes.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
   const recurringCount = incomes.filter(i => i.isRecurring).length;
@@ -522,13 +524,8 @@ export default function StudentDashboard() {
   };
 
   // ── Renderers ─────────────────────────────────────────────────
-  const renderPlaceholder = (title, icon, desc) => (
-    <div className="bw-placeholder">
-      <span className="bw-placeholder-icon">{icon}</span>
-      <h2>{title}</h2>
-      <p>{desc}</p>
-    </div>
-  );
+  // NOTE: Budgets and Savings Goals have dedicated routes/pages
+  // (/student/budgets, /student/savings-goals) handled by StudentLayout navigation.
 
   // Dashboard home
   const renderStudentHome = () => (
@@ -745,9 +742,10 @@ export default function StudentDashboard() {
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>Source *</label>
                   <select value={formSource} onChange={e => setFormSource(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(var(--overlay-rgb),0.07)', border: '1px solid rgba(var(--overlay-rgb),0.15)', color: "var(--text-primary)", fontFamily: 'inherit', fontSize: '0.95rem' }}>
-                    {systemCategories.filter(c => c.type === 'income').map(s => <option key={s.name} value={s.name} style={{ background: 'var(--bg-solid)' }}>{s.icon} {s.name}</option>)}
-                    {/* Fallback for historical data */}
-                    {!systemCategories.some(c => c.type === 'income' && c.name === formSource) && <option value={formSource} style={{ background: 'var(--bg-solid)' }}>{formSource} (Historical)</option>}
+                    {INCOME_SOURCES.map(s => {
+                      const sysCat = systemCategories.find(c => c.name === s && c.type === 'income');
+                      return <option key={s} value={s} style={{ background: 'var(--bg-solid)' }}>{sysCat ? sysCat.icon : '📌'} {s}</option>;
+                    })}
                   </select>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
@@ -1011,9 +1009,10 @@ export default function StudentDashboard() {
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label>Category *</label>
                   <select value={expCategory} onChange={e => setExpCategory(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(var(--overlay-rgb),0.07)', border: '1px solid rgba(var(--overlay-rgb),0.15)', color: "var(--text-primary)", fontFamily: 'inherit', fontSize: '0.95rem' }}>
-                    {systemCategories.filter(c => c.type === 'expense').map(c => <option key={c.name} value={c.name} style={{ background: 'var(--bg-solid)' }}>{c.icon} {c.name}</option>)}
-                    {/* Fallback for historical data */}
-                    {!systemCategories.some(c => c.type === 'expense' && c.name === expCategory) && <option value={expCategory} style={{ background: 'var(--bg-solid)' }}>{expCategory} (Historical)</option>}
+                    {EXPENSE_CATEGORIES.map(c => {
+                      const sysCat = systemCategories.find(sc => sc.name === c && sc.type === 'expense');
+                      return <option key={c} value={c} style={{ background: 'var(--bg-solid)' }}>{sysCat ? sysCat.icon : '📌'} {c}</option>;
+                    })}
                   </select>
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
@@ -1345,7 +1344,7 @@ export default function StudentDashboard() {
     );
   };
 
-  // AI Insights (connected to income & expenses data)
+  // Insights (rule-based calculations over income & expense data)
   const renderAiInsights = () => {
     const topSource = Object.entries(categoryBreakdown).sort((a, b) => b[1] - a[1])[0];
     const topExpense = Object.entries(expCategoryBreakdown).sort((a, b) => b[1] - a[1])[0];
@@ -1356,15 +1355,15 @@ export default function StudentDashboard() {
     return (
       <>
         <div className="bw-welcome">
-          <h1>🤖 AI Insights</h1>
-          <p>Personalized financial advice powered by your real transaction data</p>
+          <h1>💡 Insights</h1>
+          <p>Rule-based observations calculated from your recorded income and expenses</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
           {incomes.length === 0 && expenses.length === 0 ? (
             <div className="bw-card">
               <div style={{ textAlign: 'center', padding: '32px 0', color: 'rgba(var(--overlay-rgb),0.4)' }}>
-                <p style={{ fontSize: '2rem', marginBottom: 8 }}>🤖</p>
-                <p>Add income and expense records to unlock AI-powered financial insights!</p>
+                <p style={{ fontSize: '2rem', marginBottom: 8 }}>💡</p>
+                <p>Add income and expense records to unlock personalized insights!</p>
               </div>
             </div>
           ) : (
@@ -1786,8 +1785,9 @@ export default function StudentDashboard() {
       case 'dashboard':    return renderStudentHome();
       case 'income':       return renderIncomeSection();
       case 'expenses':     return renderExpenseSection();
-      case 'budgets':      return renderPlaceholder('Budgets', '📊', 'Set monthly budget limits and track progress.');
-      case 'savings':      return renderPlaceholder('Savings Goals', '🎯', 'Create savings goals and monitor your progress.');
+      // Budgets / savings are separate pages; fall through to home if reached.
+      case 'budgets':
+      case 'savings':      return renderStudentHome();
       case 'analytics':    return renderAnalytics();
       case 'ai':           return renderAiInsights();
       case 'transactions': return renderTransactions();

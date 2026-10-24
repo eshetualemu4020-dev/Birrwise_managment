@@ -20,6 +20,11 @@ export default function StudentBudgets() {
   const [error, setError] = useState('');
   const [systemCategories, setSystemCategories] = useState([]);
   
+  const BUDGET_CATEGORIES = Array.from(new Set([
+    ...CATEGORIES,
+    ...systemCategories.filter(c => c.type === 'expense').map(c => c.name)
+  ]));
+  
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
@@ -356,7 +361,7 @@ export default function StudentBudgets() {
                 <div className="bw-form-group">
                   <label>Category *</label>
                   <select className="bw-input" value={category} onChange={e => setCategory(e.target.value)}>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {BUDGET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               )}

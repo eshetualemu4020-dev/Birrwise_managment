@@ -246,7 +246,7 @@ async function updateGoal(req, res) {
       const diff = parseFloat(targetAmount) - (parseFloat(goal.targetAmount) || 0);
       if (diff > 0) {
         try {
-          await checkAvailableBalance(req.user.id, diff, null, null, goal.id);
+          await checkAvailableBalance(req.user.id, diff, { excludeGoalId: goal.id });
         } catch (balanceError) {
           return res.status(400).json({ message: balanceError.message });
         }

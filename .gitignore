@@ -9,5 +9,7 @@ backend/uploads/
 *.cjs
 *.diff
 *.rej
+*.log
+*.png
 frontend/temp_head.jsx
 view-sidebar.js

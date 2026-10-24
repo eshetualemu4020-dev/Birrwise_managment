@@ -8,6 +8,7 @@
 }
 
 :root {
+  --overlay-rgb: 255, 255, 255;
   --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #1a1640 50%, #141226 100%);
   --bg-solid: #121212;
   --text-primary: #fff;
@@ -21,6 +22,7 @@
 }
 
 .light-theme {
+  --overlay-rgb: 15, 23, 42;
   --bg-gradient: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 50%, #cbd5e1 100%);
   --bg-solid: #ffffff;
   --text-primary: #1e293b;
@@ -209,6 +211,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+body.light-theme .nav-logo {
+  color: var(--text-primary);
 }
 
 .logo-accent {
@@ -442,8 +448,9 @@ body {
 
 .about-stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .stat-box {
@@ -487,9 +494,9 @@ body {
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  transition: transform 0.2s;
+  gap: 1rem;
+  align-items: flex-start;
+  transition: transform 0.2s, border-color 0.2s;
 }
 
 .skill-card:hover {
@@ -498,9 +505,15 @@ body {
 }
 
 .skill-icon {
-  font-size: 2.2rem;
+  font-size: 1.35rem;
+  line-height: 1;
+  flex: 0 0 2.6rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(var(--overlay-rgb), 0.06);
-  padding: 0.75rem;
   border-radius: 12px;
 }
 
@@ -1538,39 +1551,6 @@ body {
 .bw-freeze-btn:hover {
   opacity: 0.85;
   transform: translateY(-1px);
-}
-
-/* ── Placeholder sections ───────────────────────────────── */
-.bw-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  text-align: center;
-  gap: 16px;
-}
-
-.bw-placeholder-icon {
-  font-size: 4rem;
-  filter: drop-shadow(0 0 16px rgba(124, 92, 252, 0.5));
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.bw-placeholder h2 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.bw-placeholder p {
-  color: rgba(var(--overlay-rgb), 0.45);
-  max-width: 360px;
 }
 
 /* ── Frozen overlay ─────────────────────────────────────── */

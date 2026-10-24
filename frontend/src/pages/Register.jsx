@@ -11,6 +11,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
 
@@ -22,14 +23,17 @@ export default function Register() {
       return setError('Passwords do not match');
     }
 
+    setLoading(true);
     try {
-      const res = await axios.post('/api/auth/register', { username, email, password });
+      await axios.post('/api/auth/register', { username, email, password });
       const loginRes = await axios.post('/api/auth/login', { email, password });
       localStorage.setItem('token', loginRes.data.token);
       localStorage.setItem('user', JSON.stringify(loginRes.data.user));
-      navigate('/dashboard');
+      navigate('/student/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,8 +150,8 @@ export default function Register() {
             <EyeIcon visible={showConfirmPassword} onClick={() => setShowConfirmPassword(!showConfirmPassword)} />
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: '16px' }}>
-            Create Account
+          <button type="submit" className="btn-primary" style={{ marginTop: '16px' }} disabled={loading}>
+            {loading ? 'Creating Account…' : 'Create Account'}
           </button>
         </form>
 

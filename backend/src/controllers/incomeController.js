@@ -51,7 +51,11 @@ exports.updateIncome = async (req, res) => {
     if (date !== undefined) income.date = date;
     if (description !== undefined) income.description = description;
     if (isRecurring !== undefined) income.isRecurring = !!isRecurring;
-    if (recurrenceInterval !== undefined) income.recurrenceInterval = isRecurring ? recurrenceInterval : null;
+    if (recurrenceInterval !== undefined) {
+      income.recurrenceInterval = income.isRecurring ? recurrenceInterval : null;
+    } else if (isRecurring === false) {
+      income.recurrenceInterval = null;
+    }
     if (remindMe !== undefined) income.remindMe = !!remindMe;
 
     await income.save();
